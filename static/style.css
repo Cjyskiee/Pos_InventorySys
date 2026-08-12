@@ -1,0 +1,217 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    text-align: left;
+    align-content: center;
+    font-family: Arial, sans-serif;
+    background-color: rgb(255, 255, 255);
+    color: #000000;
+    margin: 20px;
+}
+
+h1 { font-size: 1.5em; margin-bottom: 1rem; color: #131212; }
+h2 { text-align: center; font-size: 1.2rem; margin: 1.5rem 0 0.5rem; color: #181717; }
+h3 { text-align: left; font-size: 1.rem; margin: 0.6rem 0 0.5rem; color: #0c0c0c; }
+h4 { text-align: left; font-size: medium; margin: 0.6rem 0 0.5rem; color: #2e2d2d; }
+.view-to-homepage { text-align: left; font-size: l; margin: 0.6rem 0 0.5rem; color: #2e2d2d; }
+
+/* start of view all html */
+.ALL_ITEM-Header {
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    padding: 10px 16px;
+    background: white;
+    font-size: 30px;
+    cursor: pointer;
+}
+
+.select_box {
+    text-align: left;
+    width: 20cm;
+    border-radius: 5mm;
+    border-style: solid;
+    font-size: 15px;
+    padding: 10px 12px;
+    border-bottom: 1px solid #eee;
+}
+
+.item-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 15px;
+}
+
+.item-table th {
+    text-align: left;
+    color: #797171;
+    font-weight: 600;
+    font-size: medium;
+    padding: 8px 12px;
+    border-bottom: 1px solid #ddd;
+}
+
+.item-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #eee;
+}
+.item-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 15px;
+    table-layout: fixed;   /* forces columns to respect set widths */
+}
+
+.item-table th:nth-child(1), .item-table td:nth-child(1) { width: 30%; }
+.item-table th:nth-child(2), .item-table td:nth-child(2) { width: 15%; }
+.item-table th:nth-child(3), .item-table td:nth-child(3) { width: 15%; }
+.item-table th:nth-child(4), .item-table td:nth-child(4) { width: 15%; }
+.item-table th:nth-child(5), .item-table td:nth-child(5) { width: 25%; }
+
+/* end of view all html */
+
+.card {
+    
+    text-align: left;
+    background: white;
+    border-radius: 4px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.balance {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #2ecc71;
+}
+
+input {
+    padding: 0.5rem 1rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-right: 0.5rem;
+}
+
+button {
+    padding: 0.5rem 1.2rem;
+    background: #1a1a2e;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+nav {
+    text-align: center; font-size: 1rem; margin-bottom: 0.5rem; color: burlywood;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between; /* pushes logo left, button right */
+  align-items: center;
+  padding: 6px;
+}
+
+.Add-outline {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 10px 16px;
+  background: white;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.stat-card {
+  background: white;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 20px;
+}
+/* start of edit item html */
+
+.edit-h2 {
+    text-align: left;
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    font-size: xx-large;
+}
+
+.Item-style {
+    padding-bottom: 5%;
+    text-align: left;
+    font-weight: 50%;
+    font-size: medium;
+}
+
+.card-css {
+    width: 10%;
+    border-radius: 1mm;
+    padding: 5%;
+}
+
+.select-edit-category {
+    text-align: left;
+    width: 10cm;
+    border-radius: 5mm;
+    border-style: solid;
+    font-size: 15px;
+    padding: 10px 12px;
+    border-bottom: 1px solid #eee;
+}
+
+.cancel-toviewall {
+    padding-top: 10%;
+    padding: 0.5rem 1.2rem;
+    background: #282829;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+/* end of edit item html */
+
+/* start of add item html */
+
+.h1-add_item { 
+    text-align: left;
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    font-size: xx-large; 
+    padding-top: 8mm;
+    padding-left: 3mm;
+}
+
+.Item-style_add {
+    padding-bottom: 5mm;
+    text-align: left;
+    font-weight: 50%;
+    font-size: medium;
+}
+
+/* end of add item html */
+
+/* start of dashboard html */
+
+.box {
+    width: 300px;
+    height: 150px;
+    border-radius: 3%;
+    background-color: #f0f4f8;
+    border: 3px solid #bdbdbd;
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.grid-container {
+            display: grid;
+            /* Creates 3 equal columns automatically */
+            grid-template-columns: repeat(4, 1fr); 
+            /* Spacing between the columns and rows */
+            row-gap: 120px; 
+            max-width: 1400px;
+            padding-top: 10mm;
+            margin: 0 auto;
+        }
+

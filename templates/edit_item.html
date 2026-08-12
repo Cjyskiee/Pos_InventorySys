@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Edit Item</title>
+        <meta name="description" content="Edit an item">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="/static/style.css">
+    </head>
+    <body>
+        <h2 class="edit-h2">✏️ Edit Item</h2>
+
+        {% if error %}
+            <p style="color: red;">{{ error }}</p>
+        {% endif %}
+        <header class="topbar">
+            <form method="POST" action="/edit/{{ select_edit_item['id'] }}" required><br>
+                <div style="padding-bottom: 5%;">
+                    <label>Category:</label>
+                    <select name="Category" class="select-edit-category">
+                        <option value="Canned Goods">Canned Goods</option>
+                        <option value="Beverages">Beverages</option>
+                        <option value="Biscuits">Biscuits<option>
+                        <option value="Meat">Meat</option>
+                        <option value="Fruits">Fruits</option>
+                    </select><br>
+                </div>
+
+
+                <div class="Item-style">
+                    <label>Item Name:</label><br>
+                    <input type="Text" name="Item" style="width: 100%; padding: 12px 15px; " value="{{ select_edit_item['Item'] }} "> 
+                </div> 
+
+                <div class="Item-style">
+                    <label>Quantity:</label>
+                    <input type="number" name="Quantity" style="width: 100%; padding: 12px 15px; " value="{{ select_edit_item['Quantity'] }}" required><br>
+                </div>
+
+                <div class="Item-style">
+                    <label>Price:</label>
+                    <input type="number" name="Price" style="width: 100%; padding: 12px 15px; " value="{{ select_edit_item['Price'] }}" required><br>
+                </div>
+
+                <div class="Item-style">
+                    <label>Reorder threshold</label>
+                    <input type="number" name="reorder_reporter" style="width: 100%; padding: 12px 15px; " value="{{ select_edit_item['reorder_reporter'] }}" required><br>
+                </div>
+
+                <button type="submit">Save Changes</button>
+
+            </form>
+        </header>
+        <br>
+        <a class="cancel-toviewall" href="/View_All">Cancel</a>
+    </body>
+</html>

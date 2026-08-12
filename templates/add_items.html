@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Add Items</title>
+        <meta name="description" content="Adding an item for the Inventory System Management">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="/static/style.css">
+    </head>
+    <body>
+        <h1 class="h1-add_item "><strong><a href="/homepage" class="view-to-homepage">☰</a> Add item</strong></h1>
+
+        <form action="/add_items" method="POST">
+            <div class="Item-style_add" style="padding-top: 5mm;">
+                <label>Category</label>
+                <select name="Category" class="select-edit-category">
+                    {% for cat in categories %}
+                        <option value="{{ cat }}">{{ cat }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="Item-style_add">
+                <label>Item Name:</label><br>
+                <input type="text" name="Item" placeholder="Mamon" style="width: 30%; padding: 12 15px;">
+            </div>
+
+            <div class="Item-style_add">
+                <label>Quantity:</label><br>
+                <input type="number" name="Quantity" placeholder="50" style="width: 30%; padding: 12px 15px;">
+            </div>
+            
+            <div class="Item-style_add">
+                <label>Price:</label><br>
+                <input type="number" name="Price" placeholder="₱15" style="width: 30%; padding: 12px 15px;">
+            </div>
+
+            <div class="Item-style_add">
+                <label>Reorder threshold</label><br>
+                <input type="number" name="reorder_reporter" placeholder="5" style="width: 30%; padding: 12px 15px;">
+                <h5 style="color: dimgray;">Flagged as low stock</h5>
+            </div>
+            <button type="submit">Save Item</button>
+        </form>
+        
+        <script src="" async defer></script>
+    </body>
+</html>

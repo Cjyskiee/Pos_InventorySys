@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Low Stock</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="/static/style.css">
+    </head>
+
+    <body>
+
+        <header class="topbar">
+            <h2 class="ALL_ITEM-Header"><a href="/homepage" class="view-to-homepage">☰</a> Low Stock Items</h2>
+            <form method="POST" action="/Items_Reorder">
+                <label><h5>Filter by Category</h5></label>
+                <select name="Category" class="select_box">
+                    <option value="Canned Goods">Canned Goods</option>
+                    <option value="Beverages">Beverages</option>
+                    <option value="Biscuits">Biscuits</option>
+                    <option value="Meat">Meat</option>
+                    <option value="Fruits">Fruits</option>
+                </select>
+                <button type="submit">Select</button>
+            </form>
+            <a class="Add-outline" href="/Items_Reorder"><h4>Show All</h4></a>
+        </header>
+
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+        <hr>
+
+        {% set ns = namespace(current_category="") %}
+        {% for item in VIEW_ALL_REORDERS %}
+            {% if item['Category'] != ns.current_category %}
+                {% if not loop.first %}
+                    </tbody>
+                    </table>
+                {% endif %}
+
+                <h4>{{ item['Category'] }}</h4><br>
+                {% set ns.current_category = item['Category'] %}
+
+                <table class="item-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Qty</th>
+                            <th>Price</th>
+                            <th>Reorder-at</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody> 
+            {% endif %}
+
+            <tr>
+                <td>{{ item['Item'] }}</td>
+                <td>{{ item['Quantity'] }}</td>
+                <td>₱{{ item['Price'] }}</td>
+                <td>{{ item['reorder_reporter'] }}</td>
+                <td><a href="/edit/{{ item['id'] }}">✏️</a></td>
+            </tr>
+            {% if loop.last %}
+                </tbody>
+                </table>
+            {% endif %}
+        {% endfor %}  
+
+        <script src="" async defer></script>
+    </body>
+</html>
