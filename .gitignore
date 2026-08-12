@@ -1,3 +1,5 @@
 *.db
 InventorySys.db
-.env
+__pycache__/
+venv/
+*tempCodeRunnerFile*
