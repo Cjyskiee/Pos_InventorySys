@@ -29,10 +29,9 @@ Flask SQLite Jinja2 HTML/CSS
 5. Check the Low Stock Report or Transactions log for history
 
 ## Setup
-///
-powershell/bash
+\`\`\`bash
 git clone https://github.com/Cjyskiee/InventorySys.git
 cd InventorySys
 pip install -r requirements.txt
 python app.py
-///
+\`\`\`
