@@ -1,12 +1,12 @@
 from flask import Flask, render_template, redirect, request, url_for
 from flask import wrappers
-from flask import sessions
+from flask import session
 import sqlite3
 import datetime
 
-
+datestamp = datetime.datetime.now().strftime("%m/%d/%y")
 app = Flask(__name__)
-
+app.secret_key = "something-secret" 
 CATEGORIES = ["Canned Goods", "Beverages", "Biscuits", "Meat", "Fruits"]
 
 def inventory_innit():
@@ -14,6 +14,7 @@ def inventory_innit():
 
 
     conn = sqlite3.connect("InventorySys.db")
+    conn.execute("PRAGMA foreign_keys = ON")
     cur = conn.cursor()
 
     cur.execute("""CREATE TABLE IF NOT EXISTS inventory(
@@ -25,15 +26,140 @@ def inventory_innit():
                     reorder_reporter INTEGER,
                     timestamp INTEGER
                 )""")
+
+    cur.execute("""CREATE TABLE IF NOT EXISTS sales(
+                    id INTEGER PRIMARY KEY,
+                    total REAL,
+                    timestamp INTEGER
+                )""")
+
+    cur.execute("""CREATE TABLE IF NOT EXISTS sales_items(
+                    id INTEGER PRIMARY KEY,
+                    sale_id INTEGER,
+                    item_id INTEGER,
+                    Quantity_Sold INTEGER,
+                    Price_at_Sale REAL,
+                    FOREIGN KEY (sale_id) REFERENCES sales(id)
+                    FOREIGN KEY (item_id) REFERENCES inventory(id)
+                )""")
+
     conn.commit()
 
 
 @app.route("/")
 def home():
-    return redirect("/homepage")
+    return redirect("/Inventory_homepage")
 
-@app.route("/homepage", methods=["GET", "POST"])
-def homepage():
+
+@app.route("/pos_homepage", methods=["GET", "POST"])
+def POS_Homepage():
+
+    conn = sqlite3.connect("InventorySys.db")
+    conn.row_factory = sqlite3.Row
+    cur = conn.cursor()
+
+
+    cur.execute("SELECT * FROM inventory ORDER BY Category, Item")
+    viewCat = cur.fetchall()
+
+    cart = session.get("cart", [])
+
+    cart_details = []
+    cart_total = 0
+
+    for cart_item in cart:
+        cur.execute("SELECT * FROM inventory WHERE id = ?", (cart_item["item_id"],))
+        item = cur.fetchone()
+
+        if item:
+            subtotal = item["Price"] * cart_item["quantity"]
+            cart_total += subtotal
+            cart_details.append({
+                "name": item["Item"],
+                "quantity": cart_item["quantity"],
+                "subtotal": subtotal
+            })
+
+    if request.method == "POST":
+
+        req_Category = request.form.get("Category")
+        if not req_Category or not req_Category.strip():
+            return render_template("pos_homepage.html", error="Category must be fill up")
+
+        cur.execute("SELECT * FROM inventory WHERE Category = ?", (req_Category,))
+        view_by_Cat = cur.fetchall()
+
+        if not view_by_Cat:
+            conn.close()
+            return render_template("pos_homepage.html", error="No items available")
+        return render_template("pos_homepage.html", viewCategory=view_by_Cat,)
+
+    conn.close()
+    return render_template("pos_homepage.html", viewCategory=viewCat, cart=cart_details, cart_total=cart_total)
+
+@app.route("/pos_add", methods=["POST", "GET"])
+def POS_AddCart():
+    if request.method == "POST":
+        req_item_id = int(request.form.get("item_id"))
+        req_quantity = int(request.form.get("quantity"))
+
+        if "cart" not in session:
+            session["cart"] = []
+
+        found = False
+        for cart_item in session["cart"]:
+            if cart_item["item_id"] == req_item_id:
+                cart_item["quantity"] += req_quantity
+                found = True
+                break
+
+        if not found:
+            session["cart"].append({
+                        "item_id" : req_item_id, 
+                        "quantity" : req_quantity
+            })
+
+        session.modified = True
+    return redirect("/pos_homepage")
+
+@app.route("/pos_checkout", methods=["POST", "GET"])
+def Pos_Checkout():
+    conn = sqlite3.connect("InventorySys.db")
+    conn.row_factory = sqlite3.Row
+    cur = conn.cursor()
+
+    cart_total = 0
+
+    cart = session.get("cart", [])
+
+    if not cart:
+        conn.close()
+        return render_template("pos_homepage.html", error="No Items in Cart")
+    else:
+
+        for cart_checkoutItem in cart:
+            cur.execute("SELECT * FROM inventory WHERE id = ?", (cart_checkoutItem["item_id"],))
+            item = cur.fetchone()
+            cart_total += item["Price"] * cart_checkoutItem["quantity"]
+
+        cur.execute("INSERT INTO sales (total, timestamp) VALUES (?, ?)", (cart_total, datestamp,))
+        new_saleID = cur.lastrowid
+
+        for cart_saveToSales_Item in cart:
+            cur.execute("SELECT Price FROM inventory WHERE id = ?", (cart_saveToSales_Item["item_id"],))
+            price = cur.fetchone()["Price"]
+            cur.execute("INSERT INTO sales_items (sale_id, item_id, Quantity_Sold, Price_at_Sale) VALUES (?, ?, ?, ?)", (new_saleID, cart_saveToSales_Item["item_id"], cart_saveToSales_Item["quantity"], price,))
+            cur.execute("UPDATE inventory SET Quantity = Quantity - ? WHERE id = ?", (cart_saveToSales_Item["quantity"], cart_saveToSales_Item["item_id"],))
+
+        session["cart"] = []
+
+        conn.commit()
+        conn.close()
+
+        return redirect("/pos_homepage")
+
+@app.route("/Inventory_homepage", methods=["GET", "POST"])
+def Inventory_Homepage():
 
     conn = sqlite3.connect("InventorySys.db")
     conn.row_factory = sqlite3.Row
@@ -60,7 +186,6 @@ def homepage():
 @app.route("/add_items", methods=["POST", "GET"])
 def AddItems():
 
-    datestamp = datetime.datetime.now().strftime("%m/%d/%y")
     if request.method == "POST":
 
         req_Item = request.form.get("Item")
@@ -93,7 +218,7 @@ def AddItems():
         conn.commit()
         conn.close()
 
-        return redirect("/homepage")
+        return redirect("/Inventory_homepage")
         
     return render_template("add_items.html", categories=CATEGORIES)
 

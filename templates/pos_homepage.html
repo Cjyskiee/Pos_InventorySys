@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]>      <html class="no-js"> <!--<![endif]-->
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Point of Sale</title>
+        <meta name="description" content="Puh FOR SHII">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="/static/style.css">
+    </head>
+    <body>
+
+        <div class="pos-container">   
+
+             <div class="item-list">
+                <h1 class="h1-add_item"><strong>🛒 Point of Sale</strong></h1>
+                <form method="post" action="/pos_homepage">
+                    <label>Categories</label>
+                    <select name="Category" class="select_box"> 
+                        <option value="Canned Goods">Canned Goods</option>
+                        <option value="Beverages">Beverages</option>
+                        <option value="Biscuits">Biscuits</option>
+                        <option value="Meat">Meat</option>
+                        <option value="Fruits">Fruits</option>
+                    </select>
+                    <button type="submit">Select</button>
+                    <a href="/pos_homepage"><h4>Show All</h4></a>
+                </form>
+
+                {% set ns = namespace(current_category="") %}
+                {% for item in viewCategory %}
+                    {% if item['Category'] != ns.current_category %}
+                        <h4>{{ item['Category'] }}</h4>
+                        {% set ns.current_category = item['Category'] %}
+                    {% endif %}
+
+                    <div class="smolADD-box">
+                        <h2>{{ item['Item'] }}</h2><br>
+                        <p>₱{{ item['Price'] }} · {{ item['Quantity'] }} in stock</p>
+
+                        <form method="POST" action="/pos_add">
+                            <input type="hidden" name="item_id" value="{{ item['id'] }}">
+                            <input type="number" name="quantity" value="1" min="1" style="width: 50px;">
+                            <button type="submit">Add</button>
+                        </form>
+                    </div>
+                {% endfor %}
+
+            </div>
+
+
+            <div class="cart-sidebar">
+                <h2 style="text-align: left; margin-bottom: 1cm; font-size: xx-large;"> 🛒 Cart</h2>
+                
+                <table class="item-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Qty</th>
+                            <th>Total</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    
+                        
+                        {% for Carts in cart %}
+                            <tr>
+                                <td>{{ Carts['name'] }}</td>
+                                <td>{{ Carts['quantity'] }}</td>
+                                <td>₱{{ Carts['subtotal'] }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                <p><strong>Total: ₱{{ cart_total }}</strong></p>
+                <form method="POST" action="/pos_checkout">
+                    <button type="submit">Checkout</button>
+                </form>
+
+
+            </div>
+        </div>
+
+        <hr style="transform: translate(10px, 10px);">
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+        
+
+
+        <script src="" async defer></script>
+    </body>
+</html>
