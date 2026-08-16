@@ -21,13 +21,6 @@ A Flask and SQLite web app that combines inventory tracking with a point-of-sale
 ## Tech Stack
 Flask SQLite Jinja2 HTML/CSS
 
-## Usage
-1. Visit `localhost:5000`
-2. Add items via the Add Item form
-3. Go to the POS/Checkout page to select items and complete a sale
-4. Stock updates automatically after checkout
-5. Check the Low Stock Report or Transactions log for history
-
 ## Setup
 \`\`\`bash
 git clone https://github.com/Cjyskiee/InventorySys.git
