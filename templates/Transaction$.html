@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]>      <html class="no-js"> <!--<![endif]-->
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="/static/style.css">
+    </head>
+    <body>
+        <header class="topbar">
+            <h2 class="ALL_ITEM-Header"><a href="/Inventory_homepage" class="view-to-homepage">☰</a>Transactions</h2>
+            <label><h5>Filter by Category</h5></label>
+                <select name="Category" class="select_box">
+                    <option value="Canned Goods">Canned Goods</option>
+                    <option value="Beverages">Beverages</option>
+                    <option value="Biscuits">Biscuits</option>
+                    <option value="Meat">Meat</option>
+                    <option value="Fruits">Fruits</option>
+                </select>
+                <button type="submit">Select</button>
+            </form>
+            <a class="Add-outline" href="/Transaction$"><h4>Show All</h4></a>
+        </header>
+
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+
+        <div class="week-nav">
+            <a href="{{ url_for('transaction', week=week_offset - 1) }}"> <-- Previous week</a>
+            <span class="week-label">Week offset: {{ week_offset }}</span>
+        </div>
+        <hr>
+
+          {% if sales_list %}
+    {% set ns = namespace(current_sale=None) %}
+    {% for row in sales_list %}
+      {% if row.sale_id != ns.current_sale %}
+        {% if not loop.first %}
+              </div>
+            </div>
+        {% endif %}
+        {% set ns.current_sale = row.sale_id %}
+        <div class="sale-card">
+          <div class="sale-header" onclick="this.nextElementSibling.classList.toggle('open')">
+            <span><span class="sale-id">Sale #{{ row.sale_id }}</span><span class="sale-date">{{ row.timestamp }}</span></span>
+            <span class="sale-total">P{{ row.Price_at_Sale }}</span>
+          </div>
+          <div class="sale-items">
+      {% endif %}
+            <div class="item-row">
+              <span class="item-name">{{ row.Item }} <span class="item-cat">({{ row.Category }})</span></span>
+              <span class="item-meta">x{{ row.Quantity_Sold }} &nbsp; P{{ row.Price_at_Sale }}</span>
+            </div>
+      {% if loop.last %}
+          </div>
+        </div>
+      {% endif %}
+    {% endfor %}
+  {% else %}
+    <div class="empty-state">No transactions for this week.</div>
+  {% endif %}
+
+        <script src="" async defer></script>
+    </body>
+</html>

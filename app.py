@@ -4,7 +4,7 @@ from flask import session
 import sqlite3
 import datetime
 
-datestamp = datetime.datetime.now().strftime("%m/%d/%y")
+datestamp = datetime.datetime.now().strftime("%Y-%m-%d")
 app = Flask(__name__)
 app.secret_key = "something-secret" 
 CATEGORIES = ["Canned Goods", "Beverages", "Biscuits", "Meat", "Fruits"]
@@ -316,6 +316,37 @@ def items_reorder():
     
     conn.close()
     return render_template("Items_Reorder.html", VIEW_ALL_REORDERS=view_reorders,)
+
+@app.route("/Transaction$", methods=["POST", "GET"])
+def transaction():
+
+    conn = sqlite3.connect("InventorySys.db")
+    conn.row_factory = sqlite3.Row
+    cur = conn.cursor()
+
+    week_offset = request.args.get("week", 0, type=int)
+
+
+    if request.method == "POST":
+        req_Category = request.form.get("Category")
+        if not req_Category or not req_Category.strip():
+            conn.close()
+            return render_template("Transaction$.html", error="Category must be fill up")
+
+        cur.execute("SELECT sales_items.*, inventory.Item, inventory.Category, sales.timestamp FROM sales_items JOIN inventory ON sales_items.item_id = inventory.id JOIN sales_items.sale_id = sales.id WHERE inventory.Category = ? AND strftime('%Y-%W', sales.timestamp) = strftime('%Y-%W', 'now', ? || ' days')", (req_Category, week_offset * 7,))
+        transactions_BY_Category = cur.fetchall()
+
+        if not transactions_BY_Category:
+            conn.close()
+            return render_template("Transaction$.html", error="No Items available.")
+        conn.close()
+        return render_template("Transaction$.html",  Transaction_Category=transactions_BY_Category, week_offset=week_offset)
+
+    cur.execute("SELECT sales_items.*, inventory.Item, inventory.Category, sales.timestamp FROM sales_items JOIN inventory ON sales_items.item_id = inventory.id  JOIN sales ON sales_items.sale_id = sales.id WHERE strftime('%Y-%W', sales.timestamp) = strftime('%Y-%W', 'now', ? || ' days') ORDER BY inventory.Category", (week_offset * 7,))
+    all_Transactions = cur.fetchall()
+    conn.close()
+
+    return render_template("Transaction$.html", Transaction_Item_Category=all_Transactions, week_offset=week_offset)
         
 if __name__ == "__main__":
     inventory_innit()
