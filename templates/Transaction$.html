@@ -15,15 +15,16 @@
     <body>
         <header class="topbar">
             <h2 class="ALL_ITEM-Header"><a href="/Inventory_homepage" class="view-to-homepage">☰</a>Transactions</h2>
-            <label><h5>Filter by Category</h5></label>
-                <select name="Category" class="select_box">
-                    <option value="Canned Goods">Canned Goods</option>
-                    <option value="Beverages">Beverages</option>
-                    <option value="Biscuits">Biscuits</option>
-                    <option value="Meat">Meat</option>
-                    <option value="Fruits">Fruits</option>
-                </select>
-                <button type="submit">Select</button>
+            <form method="POST" action="/Transaction$"></form>
+                <label><h5>Filter by Category</h5></label>
+                    <select name="Category" class="select_box">
+                        <option value="Canned Goods">Canned Goods</option>
+                        <option value="Beverages">Beverages</option>
+                        <option value="Biscuits">Biscuits</option>
+                        <option value="Meat">Meat</option>
+                        <option value="Fruits">Fruits</option>
+                    </select>
+                    <button type="submit">Select</button>
             </form>
             <a class="Add-outline" href="/Transaction$"><h4>Show All</h4></a>
         </header>
@@ -33,40 +34,45 @@
         {% endif %}
 
         <div class="week-nav">
-            <a href="{{ url_for('transaction', week=week_offset - 1) }}"> <-- Previous week</a>
-            <span class="week-label">Week offset: {{ week_offset }}</span>
+            <a href="/Transaction$?week={{ week_offset - 1 }}">&larr; Previous Week</a>
         </div>
         <hr>
 
-          {% if sales_list %}
-    {% set ns = namespace(current_sale=None) %}
-    {% for row in sales_list %}
-      {% if row.sale_id != ns.current_sale %}
-        {% if not loop.first %}
-              </div>
-            </div>
-        {% endif %}
-        {% set ns.current_sale = row.sale_id %}
-        <div class="sale-card">
-          <div class="sale-header" onclick="this.nextElementSibling.classList.toggle('open')">
-            <span><span class="sale-id">Sale #{{ row.sale_id }}</span><span class="sale-date">{{ row.timestamp }}</span></span>
-            <span class="sale-total">P{{ row.Price_at_Sale }}</span>
-          </div>
-          <div class="sale-items">
-      {% endif %}
-            <div class="item-row">
-              <span class="item-name">{{ row.Item }} <span class="item-cat">({{ row.Category }})</span></span>
-              <span class="item-meta">x{{ row.Quantity_Sold }} &nbsp; P{{ row.Price_at_Sale }}</span>
-            </div>
-      {% if loop.last %}
-          </div>
-        </div>
-      {% endif %}
-    {% endfor %}
-  {% else %}
-    <div class="empty-state">No transactions for this week.</div>
-  {% endif %}
+        {% set sales_list = Transaction_Category if Transaction_Category is defined else Transaction_Item_Category %}
 
-        <script src="" async defer></script>
+        {% set ns = namespace(current_sale="") %}
+        {% for item in sales_list %}
+            {% if item['sale_id'] != ns.current_sale %}
+
+                {% set ns.current_sale = item['sale_id'] %}
+                        {% if not loop.first %}
+                            </tbody>
+                            </table>
+                        {% endif %}
+                <h4>Sale #{{ item['sale_id'] }} — {{ item['timestamp'] }}</h4><br>            
+                <table class="item-table">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Category</th>
+                            <th>Qty Sold</th>
+                            <th>Price at Sale</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            {% endif %}
+
+            <tr>
+                <td>{{ item['Item'] }}</td>
+                <td>{{ item['Category'] }}</td>
+                <td>{{ item['Quantity_Sold'] }}</td>
+                <td>₱{{ item['Price_at_Sale'] }}</td>
+            </tr>
+            {% if loop.last %}
+                </tbody>
+                </table>
+            {% endif %}
+        {% endfor %}
+
     </body>
 </html>
