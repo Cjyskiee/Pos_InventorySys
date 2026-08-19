@@ -1,6 +1,7 @@
 from flask import Flask, render_template, redirect, request, url_for
-from flask import wrappers
+from functools import wraps
 from flask import session
+from werkzeug.security import generate_password_hash, check_password_hash
 import sqlite3
 import datetime
 
@@ -43,15 +44,91 @@ def inventory_innit():
                     FOREIGN KEY (item_id) REFERENCES inventory(id)
                 )""")
 
+    cur.execute("""CREATE TABLE IF NOT EXISTS users(
+                id INTEGER PRIMARY KEY,
+                username UNIQUE NOT NULL,
+                password_hash TEXT NOT NULL,
+                role TEXT NOT NULL DEFAULT 'cashier'
+                )""")
+    
+
     conn.commit()
 
 
+def creating_account():
+    conn = sqlite3.connect("InventorySys.db")
+    cur = conn.cursor()
+
+    username = "cashier1"
+    plain_password = "cashier123"
+    role = "cashier"
+
+    password_hash = generate_password_hash(plain_password,)
+
+    cur.execute("SELECT id FROM users WHERE username = ?", (username,))
+    exist_user = cur.fetchone()
+    if exist_user:
+        print("user already exist. skip that shii")
+    else:
+        cur.execute("INSERT INTO users (username, password_hash, role) VALUES (?, ?, ?)",
+                    (username, password_hash, role,))
+
+        conn.commit()
+        print("Admin account created.")
+
+    conn.close()
 @app.route("/")
 def home():
-    return redirect("/Inventory_homepage")
+    return redirect("/login")
+
+
+@app.route("/login", methods=["POST", "GET"])
+def login_Session():
+
+    if request.method == "POST":
+        conn = sqlite3.connect("InventorySys.db")
+        conn.row_factory = sqlite3.Row
+        cur = conn.cursor()
+
+        req_username = request.form.get("username")
+        req_password = request.form.get("password") 
+
+        cur.execute("SELECT * FROM users WHERE username = ?", (req_username,))
+        user = cur.fetchone()
+
+        if user and check_password_hash(user["password_hash"], req_password,):
+            session["user_id"] = user["id"]
+            session["role"] = user["role"]
+
+        cur.execute("SELECT * FROM users WHERE username = ? AND role = ?", (req_username, "admin"))
+        user_admin = cur.fetchone()
+        if user_admin:
+            return redirect("/Inventory_homepage")
+        else:
+            return redirect("/pos_homepage")
+        
+    return render_template("login.html", error="Invalid Username or Password")
+
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if session.get("role") != "admin":
+            return "Access denied", 403
+        return f(*args, **kwargs)
+    return decorated_function
+
+
+def cashier_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if session.get("role") != "cashier":
+            return "Access denied", 403
+        return f(*args, **kwargs)
+    return decorated_function
 
 
 @app.route("/pos_homepage", methods=["GET", "POST"])
+@cashier_required
 def POS_Homepage():
 
     conn = sqlite3.connect("InventorySys.db")
@@ -75,6 +152,7 @@ def POS_Homepage():
             subtotal = item["Price"] * cart_item["quantity"]
             cart_total += subtotal
             cart_details.append({
+                "item_id": cart_item["item_id"],
                 "name": item["Item"],
                 "quantity": cart_item["quantity"],
                 "subtotal": subtotal
@@ -98,10 +176,22 @@ def POS_Homepage():
     return render_template("pos_homepage.html", viewCategory=viewCat, cart=cart_details, cart_total=cart_total)
 
 @app.route("/pos_add", methods=["POST", "GET"])
+@cashier_required
 def POS_AddCart():
     if request.method == "POST":
         req_item_id = int(request.form.get("item_id"))
         req_quantity = int(request.form.get("quantity"))
+
+        conn = sqlite3.connect("InventorySys.db")
+        conn.row_factory = sqlite3.Row
+        cur = conn.cursor()
+
+        cur.execute("SELECT Quantity FROM inventory WHERE id = ?", (req_item_id,))
+        valid_quantity = cur.fetchone()["Quantity"]
+
+        if valid_quantity < req_quantity:
+            return render_template("pos_homepage.html", error="Not enough stocks.")
+
 
         if "cart" not in session:
             session["cart"] = []
@@ -122,7 +212,22 @@ def POS_AddCart():
         session.modified = True
     return redirect("/pos_homepage")
 
+@app.route("/pos_remove", methods=["POST", "GET"])
+def POS_removeItemCart():
+    if request.method == "POST":
+        req_item_id = int(request.form.get("item_id"))
+    
+        found = False
+        for index, cart_item in enumerate(session["cart"]):
+            if cart_item["item_id"] == req_item_id:
+                session["cart"].pop(index)
+                break
+    
+        session.modified = True
+    return redirect("/pos_homepage")
+
 @app.route("/pos_checkout", methods=["POST", "GET"])
+@cashier_required
 def Pos_Checkout():
     conn = sqlite3.connect("InventorySys.db")
     conn.row_factory = sqlite3.Row
@@ -159,6 +264,7 @@ def Pos_Checkout():
         return redirect("/pos_homepage")
 
 @app.route("/Inventory_homepage", methods=["GET", "POST"])
+@admin_required
 def Inventory_Homepage():
 
     conn = sqlite3.connect("InventorySys.db")
@@ -184,6 +290,7 @@ def Inventory_Homepage():
 
 
 @app.route("/add_items", methods=["POST", "GET"])
+@admin_required
 def AddItems():
 
     if request.method == "POST":
@@ -224,6 +331,7 @@ def AddItems():
 
 
 @app.route("/View_All", methods=["GET", "POST"])
+@admin_required
 def ViewAll():
     conn = sqlite3.connect("InventorySys.db")
     conn.row_factory = sqlite3.Row
@@ -252,6 +360,7 @@ def ViewAll():
     return render_template("View_All.html", viewItem_Category=all_items)
 
 @app.route("/edit/<int:item_id>", methods=["GET", "POST"])
+@admin_required
 def edit_item(item_id):
 
     conn = sqlite3.connect("InventorySys.db")
@@ -285,6 +394,7 @@ def edit_item(item_id):
     
 
 @app.route("/Items_Reorder", methods=["GET", "POST"])
+@admin_required
 def items_reorder():
     conn = sqlite3.connect("InventorySys.db")
     conn.row_factory = sqlite3.Row
@@ -318,6 +428,7 @@ def items_reorder():
     return render_template("Items_Reorder.html", VIEW_ALL_REORDERS=view_reorders,)
 
 @app.route("/Transaction$", methods=["POST", "GET"])
+@admin_required
 def transaction():
 
     conn = sqlite3.connect("InventorySys.db")
@@ -350,4 +461,5 @@ def transaction():
         
 if __name__ == "__main__":
     inventory_innit()
+    creating_account()
     app.run(debug=True)

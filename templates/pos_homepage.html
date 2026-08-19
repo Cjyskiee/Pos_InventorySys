@@ -73,6 +73,12 @@
                                 <td>{{ Carts['name'] }}</td>
                                 <td>{{ Carts['quantity'] }}</td>
                                 <td>₱{{ Carts['subtotal'] }}</td>
+                                <td>
+                                    <form method="POST" action="/pos_remove">
+                                        <input type="hidden" name="item_id" value="{{ Carts['item_id'] }}">
+                                        <button type="submit">Remove</button>
+                                    </form>
+                                </td>
                             </tr>
                         {% endfor %}
                     </tbody>

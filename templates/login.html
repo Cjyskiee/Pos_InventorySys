@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Login</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="/static/style.css">
+    </head>
+    <body style="text-align: center;">
+        <h1><strong>Point of Sales & Inventory System</strong></h1>
+        <h2><strong>Login</strong></h2>
+
+        
+        <form action="/login" method="POST">
+            <div class="card-container">
+                <input type="text" name="username" placeholder="Username">
+            </div>
+            <div class="card-container">
+                <input type="password" name="password" placeholder="Password">
+            </div>
+            {% if error %}
+                <div style="color: red; font-size: smaller;">{{ error }}</div>
+            {% endif %}
+            <button type="submit">Submit</button>
+        </form>
+        
+
+        <script src="" async defer></script>
+    </body>
+</html>
