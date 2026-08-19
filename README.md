@@ -17,6 +17,7 @@ A Flask and SQLite web app that combines inventory tracking with a point-of-sale
 - Checkout / cart system
 - Automatic stock deduction on sale
 - Sales history / receipt log
+- remove items from cart
 
 ## Tech Stack
 Flask SQLite Jinja2 HTML/CSS
@@ -25,6 +26,6 @@ Flask SQLite Jinja2 HTML/CSS
 \`\`\`bash
 git clone https://github.com/Cjyskiee/InventorySys.git
 cd InventorySys
-pip install -r requirements.txt
+pip install flask
 python app.py
 \`\`\`
